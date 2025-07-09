@@ -79,10 +79,10 @@ export const sharedArgs = {
 		default: false,
 	},
 	graph: {
-		type: 'boolean',
+		type: 'string',
 		short: 'g',
-		description: 'Display results as an ASCII art graph instead of a table',
-		default: false,
+		description: 'Display results as an ASCII art graph',
+		choices: ['line', 'bar'],
 	},
 	color: { // --color and FORCE_COLOR=1 is handled by picocolors
 		type: 'boolean',

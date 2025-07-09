@@ -1,7 +1,7 @@
+import type { GraphType } from '../graphs/index.ts';
 import process from 'node:process';
 import { define } from 'gunshi';
 import pc from 'picocolors';
-import { createSmoothLineGraph } from '../_ascii-graph.ts';
 import { sharedCommandConfig } from '../_shared-args.ts';
 import { formatCurrency, formatModelsDisplayMultiline, formatNumber, pushBreakdownRows, ResponsiveTable } from '../_utils.ts';
 import {
@@ -11,6 +11,7 @@ import {
 } from '../calculate-cost.ts';
 import { formatDateCompact, loadDailyUsageData } from '../data-loader.ts';
 import { detectMismatches, printMismatchReport } from '../debug.ts';
+import { graphGenerators } from '../graphs/index.ts';
 import { log, logger } from '../logger.ts';
 
 export const dailyCommand = define({
@@ -67,10 +68,12 @@ export const dailyCommand = define({
 			};
 			log(JSON.stringify(jsonOutput, null, 2));
 		}
-		else if (ctx.values.graph) {
+		else if (ctx.values.graph != null) {
 			// Output ASCII art graph
-			if (dailyData.length < 2) {
-				logger.warn('Cannot draw a graph with less than 2 data points.');
+			const graphType = ctx.values.graph as GraphType;
+
+			if (graphType === 'line' && dailyData.length < 2) {
+				logger.warn('Cannot draw a line graph with less than 2 data points.');
 				process.exit(0);
 			}
 
@@ -83,8 +86,14 @@ export const dailyCommand = define({
 			const costSeries = dailyData.map(d => d.totalCost);
 			const dates = dailyData.map(d => d.date);
 
-			// Generate smooth line graph using our custom implementation
-			const graph = createSmoothLineGraph(costSeries, {
+			// Generate graph using appropriate generator
+			const generator = graphGenerators[graphType];
+			if (generator == null) {
+				logger.error(`Invalid graph type: ${graphType}. Available types: line, bar`);
+				process.exit(1);
+			}
+
+			const graph = generator(costSeries, {
 				height: 15,
 				width: graphWidth,
 				padding,
@@ -92,7 +101,7 @@ export const dailyCommand = define({
 			});
 
 			// Print header
-			logger.box('Claude Code Token Usage Report - Daily (Graph)');
+			logger.box(`Claude Code Token Usage Report - Daily (${graphType === 'bar' ? 'Bar' : 'Line'} Graph)`);
 
 			// Print graph
 			log(graph);
@@ -126,7 +135,7 @@ export const dailyCommand = define({
 			const lastIndex = dataPoints - 1;
 			if (dataPoints > 1) {
 				const lastSelectedIndex = selectedIndices[selectedIndices.length - 1];
-				if (lastIndex - lastSelectedIndex >= labelInterval / 2 || selectedIndices.length === 1) {
+				if ((lastSelectedIndex != null && lastIndex - lastSelectedIndex >= labelInterval / 2) || selectedIndices.length === 1) {
 					selectedIndices.push(lastIndex);
 				}
 			}
@@ -351,7 +360,7 @@ if (import.meta.vitest != null) {
 				const costSeries = dailyData.map(d => d.totalCost);
 				expect(costSeries).toEqual([0.00123, 0.00234, 0.00345]);
 
-				const graph = createSmoothLineGraph(costSeries, {
+				const graph = graphGenerators.line(costSeries, {
 					height: 10,
 					width: 60,
 					padding: '      ',
