@@ -62,6 +62,7 @@ ccusage blocks --live  # Real-time usage dashboard
 ccusage daily --since 20250525 --until 20250530
 ccusage daily --json  # JSON output
 ccusage daily --breakdown  # Per-model cost breakdown
+ccusage daily --graph  # ASCII art graph visualization
 ```
 
 ## Features
@@ -71,6 +72,7 @@ ccusage daily --breakdown  # Per-model cost breakdown
 - 💬 **Session Report**: View usage grouped by conversation sessions
 - ⏰ **5-Hour Blocks Report**: Track usage within Claude's billing windows with active block monitoring
 - 📈 **Live Monitoring**: Real-time dashboard showing active session progress, token burn rate, and cost projections with `blocks --live`
+- 📉 **Graph Visualization**: Display daily usage trends as ASCII art graphs with `--graph` flag
 - 🤖 **Model Tracking**: See which Claude models you're using (Opus, Sonnet, etc.)
 - 📊 **Model Breakdown**: View per-model cost breakdown with `--breakdown` flag
 - 📅 **Date Filtering**: Filter reports by date range using `--since` and `--until`

@@ -78,6 +78,12 @@ export const sharedArgs = {
 		description: 'Use cached pricing data for Claude models instead of fetching from API',
 		default: false,
 	},
+	graph: {
+		type: 'boolean',
+		short: 'g',
+		description: 'Display results as an ASCII art graph instead of a table',
+		default: false,
+	},
 	color: { // --color and FORCE_COLOR=1 is handled by picocolors
 		type: 'boolean',
 		description: 'Enable colored output (default: auto). FORCE_COLOR=1 has the same effect.',
